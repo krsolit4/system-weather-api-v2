@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	<configuration-properties doc:name="Geo properties" doc:id="3e8be39e-bd35-4197-b1be-2c7a795872c2" file="geo-location-config.properties" />
+	<configuration-properties doc:name="Weather properties" doc:id="22acbd71-99b9-48af-8bd9-b59a155e54b3" file="open-weather-config.properties" />
+	<http:request-config name="HTTP_Request_config_Geo" doc:name="HTTP Request configuration" doc:id="a7cf69a8-cacf-43eb-a7ff-403a3dae73a4" >
+		<http:request-connection protocol="HTTPS" host="${geo.host}" port="${geo.port}" >
+			<reconnection >
+				<reconnect />
+			</reconnection>
+		</http:request-connection>
+	</http:request-config>
+	<http:request-config name="HTTP_Request_config_weather" doc:name="HTTP Request configuration" doc:id="4df9d0fe-2058-479a-96a1-a71d85286030" >
+		<http:request-connection protocol="HTTPS" host="${weather.api.host}" port="${weather.api.port}" />
+	</http:request-config>
+	<!-- <api-gateway:autodiscovery apiId="16963855" doc:name="API Autodiscovery" doc:id="da129830-f460-4bd8-9fa8-7491aaa58688" flowRef="weather-api-main" /> -->
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="cc250775-8fb4-454f-93b9-e6a91f19136b" >
+		<db:my-sql-connection host="sql3.freesqldatabase.com" port="3306" user="sql3428063" password="L3GXcVtYbC" database="sql3428063" />
+	</db:config>
+	
+	
+</mule>

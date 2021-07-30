@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<sub-flow name="get-weather-via-postalSub_Flow" doc:id="6424a367-2ba1-444d-9bdd-f495f8a56cf5" >
+		<logger level="INFO" doc:name="Log Flow Start" doc:id="c2c3993c-814d-47b6-95c1-254900e0bb13" message="get-weather-via-postal-flow started"/>
+		<ee:transform doc:name="postal_code" doc:id="14335a51-eeb3-4dbb-9cac-8709ca73bab8" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="zipCode" ><![CDATA[%dw 2.0
+output application/java
+---
+vars.'postal-code']]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<http:request method="GET" doc:name="Request Weather" doc:id="3c1b7154-6cd3-4be6-ba53-ee109ea57031" config-ref="HTTP_Request_config_weather" path="${weather.api.path}">
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	zip : vars.'postal-code',
+	appid : "4e5998ad0b9d7da27bc48e8e1c4af02f"
+}]]]></http:query-params>
+		</http:request>
+		<ee:transform doc:name="WeatherInfo" doc:id="377dfa97-811d-454d-8d63-65ce8ce27538" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="Kelvins to Fahrnheit" doc:id="390fdf46-d42f-42d9-85af-dda506c1ee61" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	country : payload.sys.country,
+	time_zone : "US",
+	weather : {
+		high_temperature : (((payload.main.temp_max as Number) - 273.15) * (9/5) + 32 ) default 0,
+		low_temparature : (((payload.main.temp_min as Number) - 273.15) * (9/5) + 32) default 0,
+		current_temparature : (((payload.main.temp as Number) - 273.15) * (9/5) + 32)default 0,
+		current_outlook : payload.weather[0].description
+	}
+}
+
+//(0K − 273.15) × 9/5 + 32
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</sub-flow>
+</mule>

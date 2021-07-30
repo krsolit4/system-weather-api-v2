@@ -1,0 +1,5 @@
+{
+	"error-code" : "500",
+	"error-message" : "Internal Server Error",
+	"error-description" : "Invalid IP Address"
+}

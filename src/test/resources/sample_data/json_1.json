@@ -1,0 +1,14 @@
+{
+  "country": {
+    
+  },
+  "time_zone": "nulla",
+  "weather": {
+    "high_temperature": 3,
+    "low_temparature": 93,
+    "current_temparature": 78,
+    "current_outlook": {
+      
+    }
+  }
+}

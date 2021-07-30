@@ -1,0 +1,10 @@
+{
+  "country" : "US",
+  "time-zone" : "Mountain View",
+	"weather" : {
+        "high-temperature" : "75 F",
+	      "low-temperature" :"60 F",
+	      "current-temperature" : "65 F",
+	      "current-outlook" : "clear sky"
+  }
+}

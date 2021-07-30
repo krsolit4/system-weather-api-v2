@@ -1,0 +1,12 @@
+{
+  "sampleData": {
+    "7b9cb3c8-51fd-4e95-913b-7da463ab64cd": {
+      "vars-originalPayload": "sample_data/json.json",
+      "payload": "sample_data/json_1.json"
+    },
+    "7762b990-3386-4eb1-a94e-1da2d03787d0": {
+      "payload": "sample_data/json_2.json",
+      "vars-db_response": "sample_data/list_json.json"
+    }
+  }
+}

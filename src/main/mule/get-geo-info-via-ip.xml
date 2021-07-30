@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<sub-flow name="get-geo-info-via-ipSub_Flow" doc:id="e818386d-411d-4a64-98ae-2377c64c6703" >
+		<logger level="INFO" doc:name="Log flow start" doc:id="96794238-35fa-4b80-9afd-9cbcee245e75" message="get-geo-info-via-ip flow started"/>
+		<http:request method="GET" doc:name="Request-geo-info" doc:id="ddb8a716-92d7-4c4d-9821-04bc99fba58f" config-ref="HTTP_Request_config_Geo" path="${geo.path}">
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	apiKey : "c9e1aca42f544d9288e62ee03d5273cd",
+	ip : vars.'ip-addresss'
+}]]]></http:query-params>
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="f681b0f7-a995-4909-b147-e0c4e9a58f8c" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="Transform Message" doc:id="ac446cee-cbba-4720-91e6-90a5575806dd" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"country" : payload.country_name,
+	"postal-code" : payload.zipcode,
+	"state" : payload.state_prov,
+	"country-code" : payload.country_code2
+}
+]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="originalPayload" ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+	</sub-flow>
+</mule>

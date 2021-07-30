@@ -1,0 +1,41 @@
+#%RAML 1.0
+title: WeatherAPI
+version : v1
+baseUri: http://weather.com/api/{version}
+
+/postal-code/{ip-addresss}:
+  get:
+    description: Accepts IP address and returns postal code
+    responses:
+      200:
+        body:
+          application/json: !include examples/ip-address-response.json
+
+      500:
+        body:
+          application/json: !include examples/ip-address-error-response.json
+
+/weather/postal-code/{postal-code}:
+  get:
+    description: Accepts postal code and returns weather info
+    responses:
+      200:
+        body:
+          application/json: !include examples/postal-code-response.json
+
+      500:
+        body:
+          application/json: !include examples/ip-address-error-response.json
+            
+
+/weather/ip/{ip-address}:
+  get:
+    description: Accepts ip address and returns weather info
+    responses:
+      200:
+        body:
+          application/json: !include examples/postal-code-response.json
+
+      500:
+        body:
+          application/json: !include examples/ip-address-error-response.json  

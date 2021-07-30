@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+    <http:listener-config name="weather-api-httpListenerConfig">
+        <http:listener-connection host="0.0.0.0" port="8081" />
+    </http:listener-config>
+    <apikit:config name="weather-api-config" api="weather-api.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+    <flow name="weather-api-main">
+        <http:listener config-ref="weather-api-httpListenerConfig" path="/api/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:router config-ref="weather-api-config" />
+    </flow>
+    <flow name="weather-api-console">
+        <http:listener config-ref="weather-api-httpListenerConfig" path="/console/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:console config-ref="weather-api-config" />
+        <error-handler>
+            <on-error-propagate type="APIKIT:NOT_FOUND">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Resource not found"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">404</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+    <flow name="get:\postal-code\(ip-addresss):weather-api-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+            <ee:variables>
+                <ee:set-variable variableName="ip-addresss">attributes.uriParams.'ip-addresss'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <logger level="INFO" doc:name="Logger" doc:id="d4b8859d-bfa3-48a6-bc45-3c4659cb8e46" />
+		<flow-ref doc:name="get-geo-info-via-ipSub_Flow" doc:id="9fc98ad1-842f-4352-96d1-8fca8cb14059" name="get-geo-info-via-ipSub_Flow"/>
+		<logger level="INFO" message="get:\postal-code\(ip-addresss):weather-api-config" />
+    </flow>
+    <flow name="get:\weather\ip\(ip-address):weather-api-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+            <ee:variables>
+                <ee:set-variable variableName="ip-addresss">attributes.uriParams.'ip-address'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <flow-ref doc:name="get-weather-via-ipSub_Flow" doc:id="cefe6cea-492e-4d29-b1d7-0d1b5e1139a9" name="get-weather-via-ipSub_Flow"/>
+		<logger level="INFO" message="get:\weather\ip\(ip-address):weather-api-config" />
+    </flow>
+    <flow name="get:\weather\postal-code\(postal-code):weather-api-config">
+        <ee:transform doc:name="Transform Message" doc:id="edfe211f-8972-4286-8a67-26fdbee551ce" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[attributes.uriParams."postal-code"]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<flow-ref doc:name="get-weather-via-postalSub_Flow" doc:id="4a29ad70-0be8-4e2b-9edf-1f9c1cb280fe" name="get-weather-via-postalSub_Flow"/>
+		<logger level="INFO" message="get:\weather\postal-code\(postal-code):weather-api-config" />
+    </flow>
+</mule>
